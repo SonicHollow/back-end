@@ -4,10 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.sonichollow.forum.entity.User;
 import com.sonichollow.forum.mapper.UserMapper;
-import com.sonichollow.forum.service.ex.InsertException;
-import com.sonichollow.forum.service.ex.NoSuchUsernameException;
-import com.sonichollow.forum.service.ex.PasswordWrongException;
-import com.sonichollow.forum.service.ex.RepeatUsernameException;
+import com.sonichollow.forum.service.ex.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -22,7 +19,7 @@ public class UserService {
     @Autowired
     private UserMapper userMapper;
 
-    private User selectByUsername(String username){
+    public User selectByUsername(String username){
         User user;
         try{
             user=userMapper.selectOne(new QueryWrapper<User>().eq("username",username));
@@ -62,7 +59,7 @@ public class UserService {
         String username=user.getUsername();
         String password=user.getPassword();
         User selectResult=selectByUsername(username);
-        if(selectResult==null){
+        if(selectResult==null || selectResult.getIsDelete()==1){
             throw new NoSuchUsernameException("用户不存在");
         }
         String salt=selectResult.getSalt();
@@ -73,10 +70,46 @@ public class UserService {
         return selectResult;
     }
 
+
+    /**
+     * 用户信息表更新服务在login成功之后的基础上运行
+     * @param user
+     */
     public void update(User user) {
+        user.setPassword(null);
         UpdateWrapper<User> wrapper = new UpdateWrapper<User>();
         wrapper.eq("username",user.getUsername());
+        user.setModifiedUser(user.getUsername());
+        user.setModifiedTime(new Date());
         userMapper.update(user,wrapper);
+    }
+
+    /**
+     * 用户注销服务在login成功之后的基础上运行
+     * @param deleteUser
+     */
+    public void delete(User deleteUser){
+        UpdateWrapper<User> wrapper = new UpdateWrapper<User>();
+        User user=new User();
+        user.setUsername(deleteUser.getUsername());
+        user.setIsDelete(1);
+        user.setModifiedTime(new Date());
+        wrapper.eq("username",user.getUsername());
+        userMapper.update(user,wrapper);
+    }
+
+    public void updateByAdministrator(User user,User administrator) {
+        UpdateWrapper<User> wrapper = new UpdateWrapper<User>();
+        wrapper.eq("username",user.getUsername());
+        user.setModifiedUser(administrator.getUsername());
+        user.setModifiedTime(new Date());
+        userMapper.update(user,wrapper);
+    }
+
+    public String rootPassword(String salt){
+        String password="123456";
+        password=getMD5Password(password,salt);
+        return password;
     }
 
     private String getMD5Password(String password, String salt) {
