@@ -19,20 +19,19 @@ public class UserService {
     @Autowired
     private UserMapper userMapper;
 
-    public User selectByUsername(String username){
+    public User selectByUsername(String username) {
         User user;
-        try{
-            user=userMapper.selectOne(new QueryWrapper<User>().eq("username",username));
-            return user;
-        }
-        catch (Exception e){
-            return null;
-        }
+        user = userMapper.selectOne(new QueryWrapper<User>().eq("username", username));
+        if (user == null)
+            System.err.println(new NoSuchUsernameException("用户不存在"));
+        if(user != null && user.getIsDelete() == 1)
+            System.err.println(new NoSuchUsernameException("用户已删除"));
+        return user;
     }
 
-    public void register(User user) {
-        String username=user.getUsername();
-        if(selectByUsername(username)!=null){
+    public User register(User user) {
+        String username = user.getUsername();
+        if (selectByUsername(username) != null) {
             throw new RepeatUsernameException("用户名重复");
         }
         String oldPassword = user.getPassword();
@@ -48,23 +47,23 @@ public class UserService {
         user.setCreatedTime(date);
         user.setModifiedTime(date);
 
-        Integer rows=userMapper.insert(user);
-        if(rows!=1){
+        Integer rows = userMapper.insert(user);
+        if (rows != 1) {
             throw new InsertException("插入数据失败");
         }
-
+        return selectByUsername(username);
     }
 
     public User login(User user) {
-        String username=user.getUsername();
-        String password=user.getPassword();
-        User selectResult=selectByUsername(username);
-        if(selectResult==null || selectResult.getIsDelete()==1){
+        String username = user.getUsername();
+        String password = user.getPassword();
+        User selectResult = selectByUsername(username);
+        if (selectResult == null || selectResult.getIsDelete() == 1) {
             throw new NoSuchUsernameException("用户不存在");
         }
-        String salt=selectResult.getSalt();
-        String newPassword=getMD5Password(password,salt);
-        if(!selectResult.getPassword().equals(newPassword)){
+        String salt = selectResult.getSalt();
+        String newPassword = getMD5Password(password, salt);
+        if (!selectResult.getPassword().equals(newPassword)) {
             throw new PasswordWrongException("密码错误");
         }
         return selectResult;
@@ -73,42 +72,44 @@ public class UserService {
 
     /**
      * 用户信息表更新服务在login成功之后的基础上运行
+     *
      * @param user
      */
     public void update(User user) {
         user.setPassword(null);
         UpdateWrapper<User> wrapper = new UpdateWrapper<User>();
-        wrapper.eq("username",user.getUsername());
+        wrapper.eq("username", user.getUsername());
         user.setModifiedUser(user.getUsername());
         user.setModifiedTime(new Date());
-        userMapper.update(user,wrapper);
+        userMapper.update(user, wrapper);
     }
 
     /**
      * 用户注销服务在login成功之后的基础上运行
+     *
      * @param deleteUser
      */
-    public void delete(User deleteUser){
+    public void delete(User deleteUser) {
         UpdateWrapper<User> wrapper = new UpdateWrapper<User>();
-        User user=new User();
+        User user = new User();
         user.setUsername(deleteUser.getUsername());
         user.setIsDelete(1);
         user.setModifiedTime(new Date());
-        wrapper.eq("username",user.getUsername());
-        userMapper.update(user,wrapper);
+        wrapper.eq("username", user.getUsername());
+        userMapper.update(user, wrapper);
     }
 
-    public void updateByAdministrator(User user,User administrator) {
+    public void updateByAdministrator(User user, User administrator) {
         UpdateWrapper<User> wrapper = new UpdateWrapper<User>();
-        wrapper.eq("username",user.getUsername());
+        wrapper.eq("username", user.getUsername());
         user.setModifiedUser(administrator.getUsername());
         user.setModifiedTime(new Date());
-        userMapper.update(user,wrapper);
+        userMapper.update(user, wrapper);
     }
 
-    public String rootPassword(String salt){
-        String password="123456";
-        password=getMD5Password(password,salt);
+    public String rootPassword(String salt) {
+        String password = "123456";
+        password = getMD5Password(password, salt);
         return password;
     }
 
