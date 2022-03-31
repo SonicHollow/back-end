@@ -47,7 +47,7 @@ public class Captcha {
             ImageIO.write(img, "jpg", outputStream);
             byte[] base64Img = Base64Utils.encode(outputStream.toByteArray());
             map.put("code", code);
-            map.put("base64Str", "data:image/jpeg;base64," + new String(base64Img).replaceAll("\n", ""));
+            map.put("base64", "data:image/jpeg;base64," + new String(base64Img).replaceAll("\n", ""));
             return map;
         } catch (IOException e) {
             e.printStackTrace();

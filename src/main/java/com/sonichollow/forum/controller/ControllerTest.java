@@ -5,6 +5,7 @@ import com.sonichollow.forum.service.UserService;
 import com.sonichollow.forum.service.ex.NoSuchUsernameException;
 import com.sonichollow.forum.service.ex.RepeatUsernameException;
 import com.sonichollow.forum.service.ex.ServiceException;
+import com.sonichollow.forum.util.Captcha;
 import com.sonichollow.forum.util.JsonResult;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -21,6 +23,12 @@ public class ControllerTest {
 
     @Resource
     private UserService userService;
+
+    @RequestMapping("/captcha")
+    public JsonResult<Map<String,String>> captcha(){
+        return new JsonResult<>(200,"success",userService.getCaptcha());
+    }
+
 
     @RequestMapping("/register")
     public JsonResult<User> register(String username, String password) {

@@ -11,6 +11,6 @@ public class CaptchaTests {
     public void product(){
         Map<String,String> captchaObject=Captcha.product();
         System.err.println(captchaObject.get("code"));
-        System.err.println(captchaObject.get("base64Str"));
+        System.err.println(captchaObject.get("base64"));
     }
 }

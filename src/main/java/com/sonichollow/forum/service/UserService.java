@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.sonichollow.forum.entity.User;
 import com.sonichollow.forum.mapper.UserMapper;
 import com.sonichollow.forum.service.ex.*;
+import com.sonichollow.forum.util.Captcha;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -12,12 +13,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
 public class UserService {
     @Autowired
     private UserMapper userMapper;
+
+    public Map<String,String> getCaptcha(){
+        return Captcha.product();
+    }
 
     public User selectByUsername(String username) {
         User user;
