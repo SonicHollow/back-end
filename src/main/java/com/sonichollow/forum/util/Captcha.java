@@ -23,7 +23,8 @@ public class Captcha {
         g.setColor(Color.WHITE);
         g.fillRect(0, 0, width, height);
         // 设置字体
-        g.setFont(new Font("cmr10", Font.BOLD, (int) (height / 1.2)));
+        //g.setFont(new Font("cmr10", Font.BOLD, (int) (height / 1.2)));
+        g.setFont(new Font("Segoe Script", Font.BOLD, (int) (height / 1.2)));
         // 随机数字
         Random r = new Random(System.currentTimeMillis());
         String code = "";

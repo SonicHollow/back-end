@@ -2,19 +2,12 @@ package com.sonichollow.forum.controller;
 
 import com.sonichollow.forum.entity.User;
 import com.sonichollow.forum.service.UserService;
-import com.sonichollow.forum.service.ex.NoSuchUsernameException;
-import com.sonichollow.forum.service.ex.RepeatUsernameException;
 import com.sonichollow.forum.service.ex.ServiceException;
-import com.sonichollow.forum.util.Captcha;
 import com.sonichollow.forum.util.JsonResult;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Resource;
-import java.util.List;
 import java.util.Map;
 
 
