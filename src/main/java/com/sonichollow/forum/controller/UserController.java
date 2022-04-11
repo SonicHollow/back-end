@@ -90,38 +90,88 @@ public class UserController {
 //    }
 
     @RequestMapping("/login")
-    public JsonResult<User> login(String username, String password) {
+    public ModelAndView login(String username, String password) {
+        ModelAndView mav=new ModelAndView("welcome.html");
         User user = new User();
         try {
             user.setUsername(username);
             user.setPassword(password);
             user = userService.login(user);
-            return new JsonResult<User>(200, "success", user);
+            mav.getModel().put("state",200);
+            mav.getModel().put("message","success login");
+            mav.getModel().put("user",username);
+            return mav;
+            //return new JsonResult<User>(200, "success", user);
         } catch (ServiceException e) {
             System.err.println(e);
-            return new JsonResult<User>(400, "username or password wrong", null);
+            mav.getModel().put("state",400);
+            mav.getModel().put("message","username or password wrong");
+            mav.getModel().put("user",null);
+            return mav;
         }
     }
 
+//    @RequestMapping("/login")
+//    public JsonResult<User> login(String username, String password) {
+//        User user = new User();
+//        try {
+//            user.setUsername(username);
+//            user.setPassword(password);
+//            user = userService.login(user);
+//            return new JsonResult<User>(200, "success", user);
+//        } catch (ServiceException e) {
+//            System.err.println(e);
+//            return new JsonResult<User>(400, "username or password wrong", null);
+//        }
+//    }
+
     @RequestMapping("/find-by-username")
-    public JsonResult<User> findByUsername(String username) {
+    public ModelAndView findByUsername(String username) {
         User user = new User();
         user.setUsername(username);
         user = userService.selectByUsername(username);
+        ModelAndView mav=new ModelAndView("welcome.html");
         if (user == null) {
-            return new JsonResult<User>(400, "not such a user", null);
+            mav.getModel().put("state",400);
+            mav.getModel().put("message","not such a user");
+            mav.getModel().put("user",null);
+            return mav;
         }
         if (user.getIsDelete() == 1) {
-            return new JsonResult<User>(400, "user logout already", null);
+            mav.getModel().put("state",400);
+            mav.getModel().put("message","user deleted already");
+            mav.getModel().put("user",null);
+            return mav;
         }
-        return new JsonResult<User>(200, "success", user);
+        mav.getModel().put("state",200);
+        mav.getModel().put("message","success login");
+        mav.getModel().put("user",username);
+        return mav;
     }
 
+//    @RequestMapping("/find-by-username")
+//    public JsonResult<User> findByUsername(String username) {
+//        User user = new User();
+//        user.setUsername(username);
+//        user = userService.selectByUsername(username);
+//        if (user == null) {
+//            return new JsonResult<User>(400, "not such a user", null);
+//        }
+//        if (user.getIsDelete() == 1) {
+//            return new JsonResult<User>(400, "user logout already", null);
+//        }
+//        return new JsonResult<User>(200, "success", user);
+//    }
+
     @RequestMapping("/delete")
-    public JsonResult<User> deleteByUsername(String username) {
+    public ModelAndView deleteByUsername(String username) {
+        ModelAndView mav=new ModelAndView("welcome.html");
         User user = new User();
         user.setUsername(username);
         userService.delete(user);
-        return new JsonResult<User>(200, "success", userService.selectByUsername(username));
+        mav.getModel().put("state",200);
+        mav.getModel().put("message","success deleted");
+        mav.getModel().put("user",null);
+        return mav;
     }
 }
